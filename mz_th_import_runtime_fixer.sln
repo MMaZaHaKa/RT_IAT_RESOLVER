@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30711.63
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mz_th_import_runtime_fixer", "mz_th_import_runtime_fixer\mz_th_import_runtime_fixer.vcxproj", "{377A2583-425E-47FE-9744-47F7B75F3482}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{377A2583-425E-47FE-9744-47F7B75F3482}.Debug|x64.ActiveCfg = Debug|x64
+		{377A2583-425E-47FE-9744-47F7B75F3482}.Debug|x64.Build.0 = Debug|x64
+		{377A2583-425E-47FE-9744-47F7B75F3482}.Debug|x86.ActiveCfg = Debug|Win32
+		{377A2583-425E-47FE-9744-47F7B75F3482}.Debug|x86.Build.0 = Debug|Win32
+		{377A2583-425E-47FE-9744-47F7B75F3482}.Release|x64.ActiveCfg = Release|x64
+		{377A2583-425E-47FE-9744-47F7B75F3482}.Release|x64.Build.0 = Release|x64
+		{377A2583-425E-47FE-9744-47F7B75F3482}.Release|x86.ActiveCfg = Release|Win32
+		{377A2583-425E-47FE-9744-47F7B75F3482}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {60C6604A-66C8-44AA-9877-A63A991B12AC}
+	EndGlobalSection
+EndGlobal

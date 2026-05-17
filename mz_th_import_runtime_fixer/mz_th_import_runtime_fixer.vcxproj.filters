@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="hdeminhook\hde64.c">
+      <Filter>hdeminhook</Filter>
+    </ClCompile>
+    <ClCompile Include="hdeminhook\hde32.c">
+      <Filter>hdeminhook</Filter>
+    </ClCompile>
+    <ClCompile Include="tools.cpp" />
+    <ClCompile Include="common\opcode_len_calc.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\newveh.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="hdeminhook">
+      <UniqueIdentifier>{cef7fc31-6fe3-452d-9f91-f531909710a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{fb4d0728-327d-4b49-bdaf-09dd36d07afc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="hdeminhook\hde64.h">
+      <Filter>hdeminhook</Filter>
+    </ClInclude>
+    <ClInclude Include="hdeminhook\pstdint.h">
+      <Filter>hdeminhook</Filter>
+    </ClInclude>
+    <ClInclude Include="hdeminhook\table32.h">
+      <Filter>hdeminhook</Filter>
+    </ClInclude>
+    <ClInclude Include="hdeminhook\table64.h">
+      <Filter>hdeminhook</Filter>
+    </ClInclude>
+    <ClInclude Include="hdeminhook\hde32.h">
+      <Filter>hdeminhook</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.h" />
+    <ClInclude Include="common\opcode_len_calc.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\XMemory.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\newveh.h">
+      <Filter>common</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
