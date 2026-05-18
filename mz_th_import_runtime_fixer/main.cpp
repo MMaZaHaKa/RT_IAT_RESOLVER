@@ -488,14 +488,12 @@ void PerformFix(tInputData* pInput)
             case ALREADY_RESOLVED:
             {
                 auto it = exports.find(db[i].pApi);
-                if (it != exports.end())
+                assert(it != exports.end());
+                const ExportInfo& exp = it->second;
+                if (uniqueLibs.find(exp.moduleBase) == uniqueLibs.end())
                 {
-                    const ExportInfo& exp = it->second;
-                    if (uniqueLibs.find(exp.moduleBase) == uniqueLibs.end())
-                    {
-                        uniqueLibs[exp.moduleBase] = exp.moduleName;
-                        fprintf(file, "0x%llX   \"%s\"\n", (unsigned long long)exp.moduleBase, exp.moduleName.c_str());
-                    }
+                    uniqueLibs[exp.moduleBase] = exp.moduleName;
+                    fprintf(file, "0x%p   \"%s\"\n", (void*)exp.moduleBase, exp.moduleName.c_str());
                 }
                 break;
             }
@@ -518,12 +516,10 @@ void PerformFix(tInputData* pInput)
             case ALREADY_RESOLVED:
             {
                 auto it = exports.find(db[i].pApi);
-                if (it != exports.end())
-                {
-                    const ExportInfo& exp = it->second;
-                    uintptr_t f = exp.moduleBase + exp.funcRva;
-                    fprintf(file, "0x%p   \"%s\"   \"%s\"\n", (void*)f, exp.funcName.c_str(), exp.moduleName.c_str());
-                }
+                assert(it != exports.end());
+                const ExportInfo& exp = it->second;
+                uintptr_t f = exp.moduleBase + exp.funcRva;
+                fprintf(file, "0x%p   \"%s\"   \"%s\"\n", (void*)f, exp.funcName.c_str(), exp.moduleName.c_str());
                 break;
             }
             case NULL_POINTER:

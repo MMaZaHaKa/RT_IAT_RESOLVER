@@ -237,7 +237,7 @@ set_name(0x6137B220, "LoadLibraryExA__KERNEL32_DLL", SN_AUTO);
 set_name(0x6137B224, "HeapCreate__KERNEL32_DLL", SN_AUTO);
 set_name(0x62B0DD4B, "HeapCreate_Wrapper_KERNEL32_DLL", SN_AUTO);
 set_name(0x6137B228, "IAT_JUNK_LIMIT_138", SN_AUTO);
-set_name(0x5DE02EA0, "IAT_JUNK_LIMIT_WRAPPER_138", SN_AUTO);
+set_name(0x63562EA0, "IAT_JUNK_LIMIT_WRAPPER_138", SN_AUTO);
 set_name(0x6137B22C, "CreatePipe__KERNEL32_DLL", SN_AUTO);
 set_name(0x62C6F0FA, "CreatePipe_Wrapper_KERNEL32_DLL", SN_AUTO);
 set_name(0x6137B230, "DuplicateHandle__KERNEL32_DLL", SN_AUTO);

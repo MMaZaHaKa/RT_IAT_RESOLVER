@@ -1,5 +1,4 @@
-﻿  newveh.cpp
-  main.cpp
+﻿  main.cpp
 D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\common\XMemory.h(108,32): warning C4390: ";": обнаружен пустой контролируемый оператор; это правильно?
 D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\main.cpp(136,12): warning C4477: "printf": в строке форматирования "%p" требуется аргумент типа "void *", но вариативный аргумент "2" имеет тип "uintptr_t"
 D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\main.cpp(302,16): warning C4477: "printf": в строке форматирования "%p" требуется аргумент типа "void *", но вариативный аргумент "4" имеет тип "uintptr_t"
@@ -19,8 +18,8 @@ D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runt
 D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\tools.cpp(44,1): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
 D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\tools.cpp(45,1): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
   Создание кода
-  417 of 662 functions (63.0%) were compiled, the rest were copied from previous compilation.
-    86 functions were new in current compilation
-    43 functions had inline decision re-evaluated but remain unchanged
+  172 of 794 functions (21.7%) were compiled, the rest were copied from previous compilation.
+    132 functions were new in current compilation
+    96 functions had inline decision re-evaluated but remain unchanged
   Создание кода завершено
   mz_th_import_runtime_fixer.vcxproj -> D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\Release\mz_th_import_runtime_fixer.dll
