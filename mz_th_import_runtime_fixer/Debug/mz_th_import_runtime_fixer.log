@@ -13,4 +13,9 @@ D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runt
               T=unsigned char
           ]
 D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\common\XMemory.h(72,47): warning C4390: ";": обнаружен пустой контролируемый оператор; это правильно?
+  tools.cpp
+D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\tools.cpp(43,1): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
+D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\tools.cpp(44,1): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
+D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\mz_th_import_runtime_fixer\tools.cpp(45,1): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
+  Создание кода...
   mz_th_import_runtime_fixer.vcxproj -> D:\1програмирование\__PROJECTS\VISUALSTUDIOPROJ\mz_th_import_runtime_fixer\Debug\mz_th_import_runtime_fixer.dll

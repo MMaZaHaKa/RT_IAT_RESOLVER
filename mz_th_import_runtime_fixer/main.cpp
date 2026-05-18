@@ -467,6 +467,77 @@ void PerformFix(tInputData* pInput)
     }
 
     fclose(file);
+    file = nullptr;
+
+    // gen import
+    file = fopen("iat.txt", "w");
+    if (file == nullptr) {
+        printf("File Error\n");
+        return;
+    }
+
+    // lib mapping
+    std::unordered_map<uintptr_t, std::string> uniqueLibs;
+    fprintf(file, "#libs\n");
+
+    for (uint32_t i = 0; i < db.size(); ++i)
+    {
+        switch (db[i].nErr)
+        {
+            case API_RESOLVED:
+            case ALREADY_RESOLVED:
+            {
+                auto it = exports.find(db[i].pApi);
+                if (it != exports.end())
+                {
+                    const ExportInfo& exp = it->second;
+                    if (uniqueLibs.find(exp.moduleBase) == uniqueLibs.end())
+                    {
+                        uniqueLibs[exp.moduleBase] = exp.moduleName;
+                        fprintf(file, "0x%llX   \"%s\"\n", (unsigned long long)exp.moduleBase, exp.moduleName.c_str());
+                    }
+                }
+                break;
+            }
+            case NULL_POINTER:
+            case JUNK_RESOLVED_STEPS_LIMIT:
+            case RET_ADDR_NOT_EXISTS_IN_EXPORTS:
+            {
+                break;
+            }
+        }
+    }
+
+    fprintf(file, "\n#iat\n");
+
+    for (uint32_t i = 0; i < db.size(); ++i)
+    {
+        switch (db[i].nErr)
+        {
+            case API_RESOLVED:
+            case ALREADY_RESOLVED:
+            {
+                auto it = exports.find(db[i].pApi);
+                if (it != exports.end())
+                {
+                    const ExportInfo& exp = it->second;
+                    uintptr_t f = exp.moduleBase + exp.funcRva;
+                    fprintf(file, "0x%p   \"%s\"   \"%s\"\n", (void*)f, exp.funcName.c_str(), exp.moduleName.c_str());
+                }
+                break;
+            }
+            case NULL_POINTER:
+            case JUNK_RESOLVED_STEPS_LIMIT:
+            case RET_ADDR_NOT_EXISTS_IN_EXPORTS:
+            {
+                break;
+            }
+        }
+    }
+
+
+    fclose(file);
+    file = nullptr;
 }
 
 DWORD CALLBACK ThreadEntry(LPVOID lpParam)
