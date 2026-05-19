@@ -635,6 +635,7 @@ void PerformFix(tInputData* pInput)
                 fprintf(file, "MakeCode(0x%p);\n", (void*)pStart);
                 fprintf(file, "add_func(0x%p, BADADDR);\n", (void*)pStart);
                 fprintf(file, "set_name(0x%p, \"%s\", SN_AUTO);\n", (void*)pStart, nameF.c_str());
+                fprintf(file, "SetColor(0x%p, CIC_FUNC, 0x685328);\n", (void*)pStart); // BGR
                 
                 fprintf(fileR, "0x%p   \"%s\"   \"%s\"\n", (void*)pStart, exp.funcName.c_str(), exp.moduleName.c_str());
                 break;
