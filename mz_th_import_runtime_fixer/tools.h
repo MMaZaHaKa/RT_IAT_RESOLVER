@@ -59,6 +59,9 @@ struct ExportInfo
     DWORD funcRva;
 };
 
+std::string GetProcessName();
+std::string GetModuleName(HMODULE hMod);
+
 void AddExportsFromModule(HMODULE hMod, std::unordered_map<uintptr_t, ExportInfo>& addrToInfo);
 void CollectAllExports(std::unordered_map<uintptr_t, ExportInfo>& addrToInfo);
 

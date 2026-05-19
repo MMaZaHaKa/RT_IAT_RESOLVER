@@ -267,6 +267,49 @@ __declspec(naked) void NakedFunc()
      // Don't block here.
  }
 
+ // anti ASLR for dumped idb "used_only_iat_sections_dummy.txt"
+ uintptr_t TransposeLibBase(uintptr_t p)
+ {
+     struct tASLRNode {
+         uintptr_t pIdbIATFunc;
+         const char* pFuncName;
+         const char* pLibName;
+     };
+     std::vector<tASLRNode> idbUnwrap =
+     { // резольвнул по порядку в рантайме, фиксанул имена, нашёл уникальные неврапнутые либы, слинковал их тут, теперь для генерации seg найдём базу либы в idb
+        // unique unwrapped dll funcs in idb for gen sig
+        { 0x76670B10, "CloseServiceHandle", "advapi32.dll" },
+        { 0x76BE7280, "CertGetNameStringW", "CRYPT32.dll" },
+        { 0x77934F10, "GetLastError", "KERNEL32.DLL" },
+        { 0x77BAA210, "RtlEnterCriticalSection", "ntdll.dll" },
+        { 0x7771A870, "SysAllocString", "OLEAUT32.dll" },
+        { 0x76AAFCB0, "MessageBoxW", "USER32.dll" },
+        { 0x63A13880, "WinHttpReadData", "WINHTTP.dll" },
+        { 0x76860C30, "WinVerifyTrust", "WINTRUST.dll" },
+        { 0x77800370, "bind", "WS2_32.dll" },
+     };
+
+     printf("TransposeLibBase(0x%p) => ", p);
+     for (const auto& node : idbUnwrap) {
+         HMODULE hLib = GetModuleHandleA(node.pLibName);
+         if (!hLib) continue;
+         if (reinterpret_cast<uintptr_t>(hLib) == p) {
+             FARPROC pFunc = GetProcAddress(hLib, node.pFuncName);
+             if (pFunc)
+             {
+                 // idbBase = pIdbIATFunc - (pFunc - hLib)
+                 // idbBase = pIdbIATFunc - pFunc + p
+                 uintptr_t idbBase = (node.pIdbIATFunc - reinterpret_cast<uintptr_t>(pFunc) + p);
+                 printf("Rebased 0x%p\n", idbBase);
+                 return idbBase;
+             }
+         }
+     }
+
+     printf("Orig 0x%p (%s)\n", (void*)p, GetModuleName((HMODULE)p).c_str());
+     return p;
+ }
+
 void PerformFix(tInputData* pInput)
 {
     enum eErr {
@@ -295,6 +338,12 @@ void PerformFix(tInputData* pInput)
     printf("Total exports: %d\n", exports.size());
 
     vehdbg::Initialize();
+
+    //DWORD suspendCount = SuspendThread((HANDLE));
+    //if (suspendCount == (DWORD)-1) {
+    //    printf("SuspendThread Error\n");
+    //    return;
+    //}
 
     // runtime reslove link + pic
     for (uint32_t i = 0; i < pInput->nSize; ++i) {
@@ -376,7 +425,7 @@ void PerformFix(tInputData* pInput)
                 Sleep(1);
             }
 
-            printf("Got iat return 0x%p\n", g_veh_result.load(std::memory_order_acquire)); // real iat from realtime PIC
+            printf("Got iat return 0x%p\n", (void*)g_veh_result.load(std::memory_order_acquire)); // real iat from realtime PIC
             //assert(exports.find(g_veh_result.load()) != exports.end()); // 114 0x60F00000+0x01B985A2 themida jmp?
             if(exports.find(g_veh_result.load()) != exports.end())
                 db.push_back({ g_veh_result.load(), (uintptr_t)&pIAT[i], pIAT[i], API_RESOLVED });
@@ -406,6 +455,14 @@ void PerformFix(tInputData* pInput)
     }
 
     vehdbg::Shutdown();
+
+    //suspendCount = ResumeThread((HANDLE));
+
+    // DUMP:
+    //1. rename idc самой таблицы и враперов // fix_idc.txt [idc fix iat + wrappers]
+    //2. дамп маппинга системных dll которые используются в importtable + дамп функций из dll которые прописаны в iat // iat.txt [iat review]
+    //3. gen segments заглушки системных dll которые используются в iat + заглушки на функции, так меньше памяти весить будет база // iat_sections_dummy.txt [idc gen seg for dll+funcs] // MEMORY[0x1234] fixer
+    //4. all export table
 
     // gen fix idc code
     FILE* file = fopen("fix_idc.txt", "w");
@@ -505,6 +562,7 @@ void PerformFix(tInputData* pInput)
             }
         }
     }
+    uniqueLibs.clear();
 
     fprintf(file, "\n#iat\n");
 
@@ -519,7 +577,7 @@ void PerformFix(tInputData* pInput)
                 assert(it != exports.end());
                 const ExportInfo& exp = it->second;
                 uintptr_t f = exp.moduleBase + exp.funcRva;
-                fprintf(file, "0x%p   \"%s\"   \"%s\"\n", (void*)f, exp.funcName.c_str(), exp.moduleName.c_str());
+                fprintf(file, "%d   0x%p   \"%s\"   \"%s\"\n", i, (void*)f, exp.funcName.c_str(), exp.moduleName.c_str());
                 break;
             }
             case NULL_POINTER:
@@ -531,6 +589,128 @@ void PerformFix(tInputData* pInput)
         }
     }
 
+    fclose(file);
+    file = nullptr;
+
+    // make dummy sections
+    file = fopen("iat_sections_dummy.txt", "w");
+    if (file == nullptr) {
+        printf("File Error\n");
+        return;
+    }
+
+    FILE* fileR = fopen("ALREADY_RESOLVED.txt", "w");
+    if (fileR == nullptr) {
+        printf("File Error\n");
+        return;
+    }
+
+    fprintf(file, "#idc_func_dummy\n"); // можно и замаппить dll но база станет много весить
+    fprintf(fileR, "#funcs\n");
+    for (uint32_t i = 0; i < db.size(); ++i) // сегменты функций заглушек
+    {
+        switch (db[i].nErr)
+        {
+            case ALREADY_RESOLVED:
+            {
+                auto it = exports.find(db[i].pApi);
+                assert(it != exports.end());
+                const ExportInfo& exp = it->second;
+                std::string nameS = SanitizeIdaName(exp.funcName + "__" + exp.moduleName);
+                std::string nameF = "IAT_" + SanitizeIdaName(exp.funcName);
+                uintptr_t pStart = TransposeLibBase(exp.moduleBase) + exp.funcRva;
+                uintptr_t pEnd = pStart + 4; // dummy
+
+                // dummy small seg
+                fprintf(file, "AddSegEx(0x%p, 0x%p, 0, 1, 3, 2, ADDSEG_QUIET);\n", (void*)pStart, (void*)pEnd);
+                fprintf(file, "SetSegmentAttr(0x%p, SEGATTR_PERM, 7);\n", (void*)pStart);
+                fprintf(file, "SegClass(0x%p, \"CODE\");\n", (void*)pStart);
+                fprintf(file, "RenameSeg(0x%p, \"API_SEG_%s\");\n", (void*)pStart, nameS.c_str());
+
+                //SetType(addr, "CObject");
+                //set_cmt(0x0938D400, "abc", 0);
+
+                // create dummy function as in psp nid import
+                fprintf(file, "PatchByte(0x%p, 0xC3);\n", (void*)pStart);
+                fprintf(file, "MakeCode(0x%p);\n", (void*)pStart);
+                fprintf(file, "add_func(0x%p, BADADDR);\n", (void*)pStart);
+                fprintf(file, "set_name(0x%p, \"%s\", SN_AUTO);\n", (void*)pStart, nameF.c_str());
+                
+                fprintf(fileR, "0x%p   \"%s\"   \"%s\"\n", (void*)pStart, exp.funcName.c_str(), exp.moduleName.c_str());
+                break;
+            }
+            case API_RESOLVED:
+            case NULL_POINTER:
+            case JUNK_RESOLVED_STEPS_LIMIT:
+            case RET_ADDR_NOT_EXISTS_IN_EXPORTS:
+            {
+                break;
+            }
+        }
+    }
+
+    fclose(fileR);
+    fileR = nullptr;
+
+    // lib segment mapping
+    fprintf(file, "\n\n\n\n\n");
+    fprintf(file, "#idc_libs_dummy\n");
+
+    for (uint32_t i = 0; i < db.size(); ++i) // сегменты dll base
+    {
+        switch (db[i].nErr)
+        {
+            case API_RESOLVED:
+            case ALREADY_RESOLVED:
+            {
+                auto it = exports.find(db[i].pApi);
+                assert(it != exports.end());
+                const ExportInfo& exp = it->second;
+                if (uniqueLibs.find(exp.moduleBase) == uniqueLibs.end())
+                {
+                    uniqueLibs[exp.moduleBase] = exp.moduleName;
+
+                    std::string nameS = SanitizeIdaName(exp.moduleName);
+                    nameS = exp.moduleName;
+                    uintptr_t pStart = TransposeLibBase(exp.moduleBase);
+                    uintptr_t pEnd = pStart + 4; // dummy
+
+                    // dummy small seg
+                    fprintf(file, "AddSegEx(0x%p, 0x%p, 0, 1, 3, 2, ADDSEG_QUIET);\n", (void*)pStart, (void*)pEnd);
+                    fprintf(file, "SetSegmentAttr(0x%p, SEGATTR_PERM, 7);\n", (void*)pStart);
+                    fprintf(file, "SegClass(0x%p, \"CODE\");\n", (void*)pStart);
+                    fprintf(file, "RenameSeg(0x%p, \".%s\");\n", (void*)pStart, nameS.c_str());
+                }
+                break;
+            }
+            case NULL_POINTER:
+            case JUNK_RESOLVED_STEPS_LIMIT:
+            case RET_ADDR_NOT_EXISTS_IN_EXPORTS:
+            {
+                break;
+            }
+        }
+    }
+    uniqueLibs.clear();
+
+    fclose(file);
+    file = nullptr;
+
+
+    // export
+    file = fopen("export.txt", "w");
+    if (file == nullptr) {
+        printf("File Error\n");
+        return;
+    }
+
+    for (auto it = exports.begin(); it != exports.end(); ++it) {
+        const ExportInfo& exp = it->second;
+        fprintf(file, "0x%p \"%s\" \"%s\"\n",
+            (void*)(exp.moduleBase + exp.funcRva),
+            exp.funcName.c_str(),
+            exp.moduleName.c_str());
+    }
 
     fclose(file);
     file = nullptr;
@@ -552,7 +732,7 @@ DWORD CALLBACK ThreadEntry(LPVOID lpParam)
 
     PerformFix(&data);
 
-    printf("Import Fixer End!\n");
+    printf("Import Fixer Done!\n");
     return TRUE;
 }
 
