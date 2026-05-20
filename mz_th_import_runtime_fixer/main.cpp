@@ -518,9 +518,13 @@ void PerformFix(tInputData* pInput)
             }
         }
 
-        fprintf(file, "set_name(0x%08X, \"%s\", SN_AUTO);\n", (pIATRVA + pInput->pIDBBase), name.c_str()); // 0x60F00000
-        if(bFixFrapper)
-            fprintf(file, "set_name(0x%08X, \"%s\", SN_AUTO);\n", (pIATRVAWrapper + pInput->pIDBBase), nameWrapper.c_str());
+        fprintf(file, "set_name(0x%p, \"%s\", SN_AUTO);\n", (void*)(pIATRVA + pInput->pIDBBase), name.c_str()); // 0x60F00000
+        if (bFixFrapper) {
+            fprintf(file, "set_name(0x%p, \"%s\", SN_AUTO);\n", (void*)(pIATRVAWrapper + pInput->pIDBBase), nameWrapper.c_str());
+            //fprintf(file, "SetColor(0x%p, CIC_FUNC, 0x685328);\n", (void*)(pIATRVAWrapper + pInput->pIDBBase)); // BGR
+            fprintf(file, "SetColor(0x%p, CIC_FUNC, 0x734500);\n", (void*)(pIATRVAWrapper + pInput->pIDBBase)); // BGR, non native import color
+            fprintf(file, "SetType(0x%p, \"int F(int a1, int a2, int a3, int a4, int a5, int a6, int a7)\");\n", (void*)(pIATRVAWrapper + pInput->pIDBBase));
+        }
     }
 
     fclose(file);
@@ -636,6 +640,7 @@ void PerformFix(tInputData* pInput)
                 fprintf(file, "add_func(0x%p, BADADDR);\n", (void*)pStart);
                 fprintf(file, "set_name(0x%p, \"%s\", SN_AUTO);\n", (void*)pStart, nameF.c_str());
                 fprintf(file, "SetColor(0x%p, CIC_FUNC, 0x685328);\n", (void*)pStart); // BGR
+                fprintf(file, "SetType(0x%p, \"int F(int a1, int a2, int a3, int a4, int a5, int a6, int a7)\");\n", (void*)pStart);
                 
                 fprintf(fileR, "0x%p   \"%s\"   \"%s\"\n", (void*)pStart, exp.funcName.c_str(), exp.moduleName.c_str());
                 break;
