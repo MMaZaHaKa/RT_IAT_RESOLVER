@@ -270,6 +270,7 @@ __declspec(naked) void NakedFunc()
  // anti ASLR for dumped idb "used_only_iat_sections_dummy.txt"
  uintptr_t TransposeLibBase(uintptr_t p)
  {
+#if 0 // use it for another fixup dll ASLR in idb and in current process (another ASLR here and in idb)
      struct tASLRNode {
          uintptr_t pIdbIATFunc;
          const char* pFuncName;
@@ -307,6 +308,7 @@ __declspec(naked) void NakedFunc()
      }
 
      printf("Orig 0x%p (%s)\n", (void*)p, GetModuleName((HMODULE)p).c_str());
+#endif
      return p;
  }
 
